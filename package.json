@@ -9,7 +9,7 @@
     "start": "node server.js",
     "build": "node build/build.js",
     "lint": "eslint --ext .js,.vue src",
-    "postinstall": "npm run build",
+    "postinstall": "npm run build"
   },
   "dependencies": {
     "element-ui": "^1.3.6",
