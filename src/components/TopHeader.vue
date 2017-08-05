@@ -3,27 +3,35 @@
     <!-- <el-col :span="1">
       <i class="el-icon-menu" @click.native="aaa"/>
     </el-col> -->
-    <el-col :span="1" v-on:click="bbb">
-      <i class="el-icon-menu" v-on:click="bbb"/>
+    <el-col :span="1">
+      <icon name="bars" scale="1.5" @click.native="bbb"/>
     </el-col>
     <el-col :span="22">
-      <span>主題</span>
+      <span>{{path}}</span>
     </el-col>
     <el-col :span="1">
-      <i class="el-icon-edit"/>
+      <icon name="send" scale="1.5" @click.native="ccc"/>
     </el-col>
   </el-row>
 </template>
 
 <script>
-import bus from '../eventBus';
+import store from '@/store';
 
 export default {
   name: 'TopHeader',
   props: ['showMenu'],
+  data() {
+    return {
+      path: store.currentPath,
+    }
+  },
   methods: {
     bbb() {
-      this.$emit('menuSwitch')
+      this.$emit('menuSwitch');
+    },
+    ccc() {
+      this.$router.push('/publish');
     },
   },
 };

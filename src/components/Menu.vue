@@ -1,23 +1,57 @@
 <template>
   <section class="nav-list" :class="{'show': showMenu}">
   <section class="list-ul">
-    <router-link class="icon-quanbu iconfont item" :to="{'name':'list',params:{tab:'all'}}">全部</router-link>
-    <router-link class="icon-hao iconfont item" :to="{'name':'list',params:{tab:'good'}}">精华</router-link>
-    <router-link class="icon-fenxiang iconfont item" :to="{'name':'list',params:{tab:'share'}}">分享</router-link>
-    <router-link class="icon-wenda iconfont item" :to="{'name':'list',params:{tab:'ask'}}">问答</router-link>
-    <router-link class="icon-zhaopin iconfont item" :to="{'name':'list',params:{tab:'job'}}">招聘</router-link>
-    <router-link class="icon-xiaoxi iconfont item line" :to="{'name':'message'}">消息</router-link>
-    <router-link class="icon-about iconfont item" :to="{'name':'about'}">关于</router-link>
+    <!-- <a class="item" @click="gotos">
+      <icon name="user-o" class="icon" scale="1"/>
+      用戶
+    </a> -->
+    <router-link class="item" :to="{'name':'login',params:{tab:'all'}}">
+      <icon name="arrow-circle-o-right" class="icon" scale="1.7"/>
+      登錄
+    </router-link>
+    <router-link class="item line" :to="{'name':'list',query:{tab:'all'}}">
+      <icon name="th-list" class="icon" scale="1"/>
+      全部
+    </router-link>
+    <router-link class="item" :to="{'name':'list',query:{tab:'good'}}">
+      <icon name="thumbs-up" class="icon" scale="1"/>
+      精华
+    </router-link>
+    <router-link class="item" :to="{'name':'list',query:{tab:'share'}}">
+      <icon name="slideshare" class="icon" scale="1"/>
+      分享
+    </router-link>
+    <router-link class="item" :to="{'name':'list',query:{tab:'ask'}}">
+      <icon name="question-circle" class="icon" scale="1"/>
+      问答
+    </router-link>
+    <router-link class="item" :to="{'name':'list',query:{tab:'job'}}">
+      <icon name="bullhorn" class="icon" scale="1"/>
+      招聘
+    </router-link>
+    <router-link class="item line" :to="{'name':'message'}">
+      <icon name="bell" class="icon" scale="1"/>
+      消息
+    </router-link>
+    <router-link class="item" :to="{'name':'about'}">
+      <icon name="info-circle" class="icon" scale="1"/>
+      关于
+    </router-link>
   </section>
   </section>
 </template>
 
 <script>
-import bus from '../eventBus';
-
+import store from '@/store';
 export default {
   name: 'Menu',
   props: ['showMenu'],
+  methods: {
+    gotos() {
+      console.log(store)
+      this.$router.push(`/user/${store.loginname}`);
+    }
+  }
 };
 </script>
 
@@ -39,24 +73,47 @@ export default {
   }
 .list-ul {
   margin: 0 24px;
-  border-top: 1px solid #d4d4d4;
+  // border-top: 1px solid #d4d4d4;
   overflow: hidden;
   padding-top: 9%;
   .item {
-    display: block;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     font-size: 14px;
     font-weight: 200;
     padding: 9% 0;
+    padding-right: 60px;
+    // width: 80px;
     text-align: left;
     text-indent: 1px;
     line-height: 15px;
     color: #313131;
-    font-weight: 700;
-    &:last-child {
-      margin-bottom: 50px;
+    font-weight: bolder;
+    &:first-child {
+      margin-bottom: 20px;
+      font-size: 18px;
+      .icon {
+        margin-right: 10px;
+        font-weight: lighter;
+        color:  #FF7744;
+      }
+    }
+    &:nth-of-type(2) {
+      padding-top: 30px;
+    }
+    &:nth-of-type(6){
+      padding-bottom: 30px;
+    }
+    &:nth-of-type(7){
+      padding-top: 20px;
     }
     &:before {
       color: #2c3e50;
+    }
+    .icon {
+      margin-right: 30px;
     }
   }
   .line {

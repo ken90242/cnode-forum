@@ -1,16 +1,17 @@
 <template>
   <div class="outsideWrapper">
-  	<div class="titleWrapper">
+  	<loading v-show="loaded"></loading>
+  	<div class="titleWrapper" v-show="!loaded">
 	  	<p>
 	  			<strong>{{ topic.title }}</strong>
 	  	</p>
   	</div>
 
-  	<main>
+  	<main v-show="!loaded">
   		<div class="detailWrapper">
-  			<img :src="topic.author.avatar_url"/>
+  			<img :src="topic.author.avatar_url" v-on:click="seeUser(topic.author.loginname)"/>
 	  		<div class="c">
-	      	<div>{{ topic.author.loginname }}</div>
+	      	<div v-on:click="seeUser(topic.author.loginname)">{{ topic.author.loginname }}</div>
 	      	<div>{{ topic.create_at | dateStringToRead }}</div>
 	      </div>
 		    <div class="d">
@@ -22,117 +23,182 @@
   	<div class="e">
   		<div class="markdown-body" v-html="topic.content"></div>
   	</div>
-  	<div class="reply_count">
+  	<div class="reply_count" v-show="!loaded">
   		<span class="f">{{ topic.reply_count }}</span><span>回覆</span>
   	</div>
-    <section v-for="reply in topic.replies">
+  	<div class="reply_toWrapper" v-if="hasToken" v-show="!loaded">
+	  	<div class="reply_to">
+	  		<textarea placeholder="支援Markdown語法" v-model="reply_content" ref="reply_content"/>
+	  		<input type="button" value="送出" v-on:click="reply_submit"/>
+	  	</div>
+	  </div>
+    <section v-for="reply in topic.replies" v-show="!loaded">
       	<!-- <div>{{reply.id}}</div> -->
       <div class="upper">
-	      <img :src="reply.author.avatar_url"/>
+	      <img :src="reply.author.avatar_url" v-on:click="seeUser(reply.author.loginname)"/>
 	      <div class="upper_mid">
-	      	<div>{{ reply.author.loginname }}</div>
+	      	<div v-on:click="seeUser(reply.author.loginname)">{{ reply.author.loginname }}</div>
 	      	<div>{{ reply.create_at | dateStringToRead }}</div>
 	      </div>
 	      <div class="upper_last">
-	      	<i class="el-icon-arrow-up"/>
-	      	<span>{{ reply.ups.length }}</span>
-	      	<i class="el-icon-message"/>
+	      	<icon name="chevron-up" scale="1" class="icon" :class="{ upvoted: reply.is_uped}" @click.native="upvote(reply)"/>
+	      	<span :class="{ upvoted: reply.is_uped}">{{ reply.ups.length }}</span>
+	      	<icon name="reply" class="icon" scale="1" @click.native="attachId(reply.author.loginname, reply.id)"/>
 	      </div>
       </div>
       <div class="middler" v-html="reply.content"></div>
-      	<!-- <div>{{reply.isuped}}</div> -->
     </section>
   </div>
 </template>
 
 <script>
+import store from '@/store'
+import loading from './Loading/Loading.vue'
 export default {
-  name: 'list',
+  name: 'topic',
+  components: { loading },
+  methods: {
+  	upvote(replyObj) {
+  		if(!store.token) {
+  			this.$notifi({
+  				title: '請先登入'
+  			})
+  			return;
+  		}
+  		const { id } = replyObj;
+  		if(replyObj.is_uped === false) {
+  			this.$set(replyObj, 'is_uped', true);
+  			this.$set(replyObj.ups, 'length', replyObj.ups.length + 1);
+  		} else {
+  			this.$set(replyObj, 'is_uped', false);
+  			this.$set(replyObj.ups, 'length', replyObj.ups.length - 1);
+  		}
+  		fetch(`https://cnodejs.org/api/v1/reply/${ id }/ups`, {
+	   		method: 'POST',
+	   		headers: {
+	   			'Content-Type': 'application/x-www-form-urlencoded'
+	   		},
+	   		body: `accesstoken=${ store.token }`,
+	   	})
+	   	.then((res) => {
+	   		res.json()
+	   		.then((data) => {
+	   			const { success, action } = data;
+	   			if (!success) {
+	   				this.$notifi({
+		   				title: '錯誤',
+		   				message: `點讚發生錯誤.`
+		   			});
+	   			}
+		   		this.logged = false;
+	   		})
+	   	})
+	   	.catch(console.error)
+
+  	},
+  	attachId(name, id) {
+			if(store.token) {
+				this.reply_content = `@${ name } `;
+				this.reply_id = id;
+			  this.$refs.reply_content.focus()
+			} else {
+				this.$notifi({
+			  	title: '請先登入',
+			 		// message: `於${ new Date().toLocaleString() }登錄.`
+			  });
+				this.$router.push('/login')
+			}
+  	},
+  	seeUser(id) {
+      this.$router.push(`/user/${ id }`)
+  	},
+  	reply_submit() {
+  		let body;
+  		if(this.reply_id !== null) {
+  			body = `accesstoken=${ store.token }&content=${ this.reply_content }&reply_id= ${ this.reply_id }`;
+  		} else {
+  			body = `accesstoken=${ store.token }&content=${ this.reply_content }`;
+  		}
+  		this.loaded = true;
+  		fetch(`https://cnodejs.org/api/v1/topic/${this.topic.id}/replies`, {
+	   		method: 'POST',
+	   		headers: {
+	   			'Content-Type': 'application/x-www-form-urlencoded'
+	   		},
+	   		body,
+	   	})
+	   	.then((res) => {
+	   		res.json()
+	   		.then((data) => {
+		   		if(data.success) {
+		   			this.fetch_topic();
+		   			this.reply_content = '';
+		   			this.$notifi({
+		   				title: '成功發表',
+		   			});
+		   		}
+		   		else {
+		   			this.$notifi({
+		   				title: '錯誤',
+		   				message: `發生錯誤：${ data.error_msg }.`
+		   			});
+		   		}
+		   		this.logged = false;
+	   		})
+	   	})
+	   	.catch(console.error)
+  	},
+  	fetch_topic() {
+  		const url = `https://cnodejs.org/api/v1/topic/${this.$route.params.id}?accesstoken=${store.token}`
+      this.loaded = true;
+      fetch(url)
+      .then(v => v.json())
+      .then(({ data }) => {
+        this.topic = data;
+        this.loaded = false;
+      })
+      .catch(err => {
+        console.error(err);
+      })
+  	}
+  },
   data() {
     return {
+    	action: 'up',
+    	loaded: false,
+    	reply_content: '',
+    	reply_id: null,
       topic: {
-      	id: "5433d5e4e737cbe96dcef312",
-				author_id: "504c28a2e2b845157708cb61",
-				tab: "share",
-				content: "<div class=\"markdown-text\"><p>GitHub repo 地址：<a href=\"https://github.com/alsotang/node-lessons\">https://github.com/alsotang/node-lessons</a></p> <p>如果大家认为漏了哪些初学者应会的内容，可以在此留言，或者开个 issue 给我（!!推荐）。</p> <hr> <h1>《Node.js 包教不包会》 – by alsotang</h1> <h1>为何写作此课程</h1> <p>在 CNode(<a href=\"https://cnodejs.org/\">https://cnodejs.org/</a>) 混了那么久，解答了不少 Node.js 初学者们的问题。回头想想，那些问题所需要的思路都不难，但大部分人由于练手机会少，所以在遇到问题的时候很无措。国内唯一一本排的上号的 Node.js 书是 @朴灵(<a href=\"https://github.com/JacksonTian\">https://github.com/JacksonTian</a>) 的 《深入浅出Node.js》(<a href=\"http://book.douban.com/subject/25768396/\">http://book.douban.com/subject/25768396/</a> )，但这本书离实战还是比较远的。</p> <p>这个课程是希望提供更多的 Node.js 实战机会，通过每一节精心安排的课程目标，让 Node.js 的初学者们可以循序渐进地，有目的有挑战地开展 Node.js 的学习。</p> <p>更多 Node.js 入门资料请前往：<a href=\"https://cnodejs.org/getstart\">https://cnodejs.org/getstart</a></p> <h1>课程列表</h1> <ul> <li>Lesson 0: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson0\">《搭建 Node.js 开发环境》</a></li> <li>Lesson 1: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson1\">《一个最简单的 express 应用》</a></li> <li>Lesson 2: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson2\">《学习使用外部模块》</a></li> <li>Lesson 3: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson3\">《使用 superagent 与 cheerio 完成简单爬虫》</a></li> <li>Lesson 4: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson4\">《使用 eventproxy 控制并发》</a></li> <li>Lesson 5: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson5\">《使用 async 控制并发》</a></li> <li>Lesson 6: <a href=\"https://github.com/alsotang/node-lessons/tree/master/lesson6\">《测试用例：mocha，should，istanbul》</a></li> <li>Lesson 7: 《测试用例：supertest》</li> <li>Lesson 8: 《Mongodb 与 Mongoose 的使用》</li> <li>Lesson 9: 《一个简单的 blog》</li> </ul> <h1>License</h1> <p>MIT</p> </div>",
-				title: "一个面向 Noasa我五我喔aaaaa我五我喔我五我喔你,s我五我喔nm,andm,asndm,ansm,dde.js 初学者的系列课程：node-lessons",
-				last_reply_at: "2016-06-16T08:12:21.234Z",
-				good: true,
-				top: false,
-				reply_count: 85,
-				visit_count: 29390,
-				create_at: "2014-10-07T12:00:36.270Z",
-				author: {
-					loginname: "alsotang",
-					avatar_url: "https://avatars1.githubusercontent.com/u/1147375?v=4&s=120"
-				},
-				replies: [
-					{
-						id: "5433d866e737cbe96dcef313",
-						author: {
-							loginname: "leapon",
-							avatar_url: "https://avatars1.githubusercontent.com/u/4295945?v=3&s=120"
-						},
-						content: '<div class="markdown-text"><p>我喜欢我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格我喜欢你的写作风格你的写作风格</p> </div>',
-						ups: [
-							"5404a4120256839f712590f3",
-							"50f3b267df9e9fcc58452224",
-							"56ce9a441739f76e1a05d3e1",
-							"5697a7c169d67aff5a8353db",
-							"57bfb35b100afbbc0dcc53c4",
-							"5822a40fb71596cc386783e8",
-							"550959b33135610a365b01e2"
-						],
-						create_at: "2014-10-07T12:11:18.981Z",
-						reply_id: null,
-						is_uped: false
-					},
-					{
-						id: "5433e51ce737cbe96dcef315",
-						author: {
-							loginname: "alsotang",
-							avatar_url: "https://avatars1.githubusercontent.com/u/1147375?v=4&s=120"
-						},
-						content: '<div class="markdown-text"><p>[[[<a href="/user/leapon">@leapon</a>](/user/leapon)](/user/leapon)](/user/leapon) 原来你喜欢扯淡式风格</p> </div>',
-						ups: [
-							"50f5a8dadf9e9fcc58635898",
-							"51ed5627f4963ade0ea60395"
-						],
-						create_at: "2014-10-07T13:05:32.158Z",
-						reply_id: "5433d866e737cbe96dcef313",
-						is_uped: false
-					},
-					{
-						id: "5433f893e737cbe96dcef31f",
-						author: {
-							loginname: "Pana",
-							avatar_url: "https://avatars.githubusercontent.com/u/552081?v=3&s=120"
-						},
-						content: '<div class="markdown-text"><p>不错呀, 楼主继续哟, 将来就是一本书了</p> </div>',
-						ups: [ ],
-						create_at: "2014-10-07T14:28:35.184Z",
-						reply_id: null,
-						is_uped: false
-					}
-				],
-				is_collect: false,
-    	}
+      	title: '',
+      	author: {
+      		avatar_url: '',
+      	},
+      	replies: [
+      		{
+      			author: {
+      				avatar_url: '',
+      			},
+      			ups: {
+      				length: 0,
+      			}
+      		},
+      	]
+      },
     }
   },
-  watch: {
-    // $route() {
-    //   const url = `https://cnodejs.org/api/v1/topics?tab=${this.$route.params.tab}&limit=5&page=1`
-    //   fetch(url)
-    //   .then(v => v.json())
-    //   .then(({ data }) => {
-    //     this.articles = data;
-    //     console.log(data[0])
-    //   })
-    //   .catch(err => {
-    //     console.error(err);
-    //   })
-    // }
+  mounted() {
+  	this.fetch_topic();
   },
+  watch: {
+    $route() {
+      this.fetch_topic();
+    }
+  },
+  computed: {
+  	hasToken() {
+  		return store.token;
+  	}
+  }
 };
 </script>
 
@@ -171,7 +237,7 @@ section {
 	 	}
 	 	.upper_last {
 	 		display:flex;margin-right:10px;align-items:center;
-	 		i, span {
+	 		.icon, span {
 	 			margin:5px;
 	 		}
 	 		span {
@@ -197,6 +263,8 @@ section {
 .titleWrapper {
 	display: flex;
 	justify-content: center;
+	font-size: 16px;
+	font-weight: bolder;
 	p {
 		width: 90%;
 		text-align: left;
@@ -222,7 +290,6 @@ section {
 		}
 	}
 }
-
 .e {
 	display: flex;
 	justify-content: center;
@@ -282,6 +349,110 @@ main {
 				font-weight: lighter;
 			}
 		}
+	}
+}
+.reply_toWrapper {
+	display: flex;
+	justify-content: center;
+	max-height: 200px;
+	width: 100%;
+	.reply_to {
+		width: 90%;
+		display: flex;
+		flex-direction: column;
+		input {
+			font-size: 18px;
+			font-height:18px;
+			font-weight: bolder;
+			&:first-child {
+				border-style: none none solid none;
+				border-bottom-color: #42b983; 
+				padding-bottom: 10px;
+			}
+			&:focus {
+				outline: none;
+			}
+		}
+		textarea {
+				font-size: 18px;
+				min-height: 80px;
+				margin-top: 10px;
+				font-weight: light;
+				font-size: 14px;
+				resize: none;
+				max-height: 100px; 
+				text-overflow: ellipsis;
+				&:focus {
+					outline: none;
+				}
+			}
+		input[type=button] {
+			width: 100%;
+			min-height: 30px;
+			border-style: none;
+			border-radius: 5px;
+			background-color: #42b983;
+			color: white;
+			padding: 5px;
+			font-weight: bolder;
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+	}
+}
+
+.upvoted {
+	color: #FF44AA;
+	font-weight: bolder;
+	font-size: 18px;
+}
+
+</style>
+<style lang="scss">
+pre {
+  font-size: 95%;
+  line-height: 140%;
+	// max-width: 100%;
+	white-space: pre;
+	white-space: pre-wrap;
+	background-color: #f7f7f7;
+	code {
+		font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+    font-size: 95%;
+    line-height: 140%;
+    white-space: pre-wrap;
+    display: block;
+    font-weight: lighter;
+    padding: .5em 1em;
+    overflow: scroll;
+	}
+}
+img {
+	max-width: 100%;
+}
+.markdown-text {
+	a {
+		color: #08c;
+		word-break:break-word;
+		text-decoration: none;
+	}
+	li {
+		font-weight: inherit;
+	}
+}
+table {
+	display: table;
+	max-width: 100%;
+	border-collapse: separate;
+  border-spacing: 0px;
+  border-color: grey;
+  border-width: .1px;
+  border-style: solid;
+	td, th {
+		word-break: break-word;
+		border-spacing: 0;
+  	border-width: .1px;
+	  border-style: solid;
 	}
 }
 </style>

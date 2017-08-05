@@ -37,7 +37,7 @@ export default {
   text-align: center;
   color: #2c3e50;
   height: 100%;
-  margin-top: 3%;
+  /*background-color: #f7f7f7;*/
 }
 .lightbox {
   top:0px;
@@ -45,6 +45,7 @@ export default {
   background: rgba(0,0,0,.4);
   width: 100%;
   height: 100%;
+  z-index:10;
 }
 html, body {
   margin: 0px;

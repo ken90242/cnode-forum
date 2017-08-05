@@ -58,7 +58,6 @@ export default {
 			label = '秒前'
 		}
 		else if (uxGap/1000 >= 1) {
-			num = uxGap/1000
 			label = '數秒前'
 		}
 		else {
