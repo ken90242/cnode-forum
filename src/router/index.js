@@ -1,12 +1,12 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import List from '@/components/list';
-import Topic from '@/components/topic';
-import User from '@/components/user';
-import About from '@/components/about';
-import Message from '@/components/message';
-import Login from '@/components/login';
-import Publish from '@/components/publish';
+import List from '../components/list';
+import Topic from '../components/topic';
+import User from '../components/user';
+import About from '../components/about';
+import Message from '../components/message';
+import Login from '../components/login';
+import Publish from '../components/publish';
 
 Vue.use(Router);
 
