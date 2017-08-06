@@ -4,8 +4,10 @@
       class="notification"
       v-if="visible">
       <div>
-      	<i content="\E60B"></i>
-        <span>{{title}}</span>
+        <icon name="check-circle" scale="2"></icon>
+        <icon name="times-circle" scale="2"></icon>
+        <icon name="exclamation-circle" scale="2"></icon>
+        <div>{{ title }}</div>
         <div>{{ message }}</div>
       </div>
     </div>
@@ -25,7 +27,7 @@
         visible: false,
         title: '',
         message: '',
-        duration: 3000,
+        duration: 2000,
         type: '',
         closed: false,
       };
@@ -61,9 +63,12 @@
 </script>
 <style lang="scss">
 .notification {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
 	position: fixed;
 	width: 100%;
-	height: 80px;
+	height: 50px;
 	top: 0px;
 	box-shadow: 1px 1px 1px #888888;
 	background-color: rgba(0,0,0,.6);

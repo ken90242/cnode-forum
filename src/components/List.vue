@@ -1,6 +1,6 @@
 <template>
   <div class="outsideWrapper">
-    <loading v-show="loaded"></loading>
+    <loading v-if="loaded"></loading>
       <section class="a" v-for="article in articles" v-on:click="routeChange(article.id)">
         <div class="b">
           <div class="d" :class="article.tab | tabToClass(article.top,article.good)">{{ article.tab | tabToLabel(article.top,article.good) }}</div>
@@ -23,6 +23,11 @@
           </div>
         </div>
       </section>
+      <section class="blank">
+        <transition name="down">
+          <icon v-show="spinned" name="refresh" scale="2" spin></icon>
+        </transition>
+      </section>
       
   </div>
 </template>
@@ -35,6 +40,34 @@ export default {
   name: 'list',
   components: { loading },
   methods: {
+    handleScroll(e) {
+      // console.log(window.outerHeight)
+      // console.log(window.scrollY)
+      // console.log(document.body.scrollHeight)
+      if(document.body.scrollHeight - window.scrollY === window.outerHeight ) {
+        let tab;
+        if(!this.$route.query) {
+          tab = 'all';
+        } else {
+          tab = this.$route.query.tab;
+        }
+        store.currentPath = tab;
+        const url = `https://cnodejs.org/api/v1/topics?tab=${tab}&limit=40&page=${ this.currentPage }`
+        this.spinned = true;
+        this.currentPage += 1
+        fetch(url)
+        .then(v => {
+          return v.json();
+        })
+        .then(({ data }) => {
+          this.spinned = false;
+          this.articles = this.articles.concat(data);
+        })
+        .catch(err => {
+          console.error(err);
+        })
+      }
+    },
     routeChange(id) {
       if(this.routed) return false;
       this.routed = true;
@@ -45,55 +78,48 @@ export default {
       this.routed = true;
       this.$router.push(`/user/${ id }`)
       return false;
+    },
+    fetch() {
+      let tab;
+        if(!this.$route.query) {
+          tab = 'all';
+        } else {
+          tab = this.$route.query.tab;
+        }
+        store.currentPath = tab;
+        const url = `https://cnodejs.org/api/v1/topics?tab=${tab}&limit=40&page=${this.currentPage}`
+        this.currentPage += 1
+        this.loaded = true;
+        fetch(url)
+        .then(v => v.json())
+        .then(({ data }) => {
+          this.loaded = false;
+          this.articles = data;
+        })
+        .catch(err => {
+          console.error(err);
+        })
     }
   },
   data() {
     return {
+      spinned: false,
+      currentPage: 1,
       loaded: false,
       routed: false,
       articles: null,
     }
   },
   created() {
-    let tab;
-      if(!this.$route.query) {
-        tab = 'all';
-      } else {
-        tab = this.$route.query.tab;
-      }
-      store.currentPath = tab;
-      const url = `https://cnodejs.org/api/v1/topics?tab=${tab}&limit=20&page=1`
-      this.loaded = true;
-      fetch(url)
-      .then(v => v.json())
-      .then(({ data }) => {
-        this.loaded = false;
-        this.articles = data;
-      })
-      .catch(err => {
-        console.error(err);
-      })
+    this.fetch();
+    window.addEventListener('scroll', this.handleScroll);
+  },
+  destroyed() {
+    window.removeEventListener('scroll', this.handleScroll);
   },
   watch: {
     $route() {
-      let tab;
-      if(!this.$route.query) {
-        tab = 'all';
-      } else {
-        tab = this.$route.query.tab;
-      }
-      store.currentPath = tab;
-      const url = `https://cnodejs.org/api/v1/topics?tab=${tab}&limit=20&page=1`
-      this.loaded = true;
-      fetch(url)
-      .then(v => v.json())
-      .then(({ data }) => {
-        this.loaded = false;
-        this.articles = data;
-      })
-      .catch(err => {
-        console.error(err);
-      })
+      this.fetch();
     }
   },
 };
@@ -214,4 +240,37 @@ section {
 .tab_job {
   background-color: #9b59b6;
 }
+.blank {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background-color: #f0f0f0;
+  height: 100px;
+}
+.down-enter-active {
+  animation: pop-up .5s;
+}
+.down-leave-active {
+  animation: pop-down .5s;
+}
+@keyframes pop-up {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes pop-down {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+
 </style>
