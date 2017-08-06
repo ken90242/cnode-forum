@@ -2,7 +2,8 @@
   <div class="fixed" :class="{ 'show': showMenu }">
     <icon name="bars" scale="1.5" @click.native="bbb"/>
     <span>{{ path }}</span>
-    <icon name="send" scale="1.5" @click.native="ccc"/>
+    <icon name="send" scale="1.5" @click.native="ccc" v-if="writeIcon === 'send'"/>
+    <icon name="pencil" scale="1.5" @click.native="ccc" v-if="writeIcon === 'write'"/>
   </div>
 </template>
 
@@ -13,6 +14,7 @@ export default {
   data() {
     return {
       path: '',
+      writeIcon: 'write',
     }
   },
   methods: {
@@ -24,6 +26,12 @@ export default {
     },
   },
   mounted() {
+    this.$store.$on('leaveWriting', () => {
+      this.writeIcon = 'write';
+    });
+    this.$store.$on('writing', () => {
+      this.writeIcon = 'send';
+    });
     this.$store.$on('changePath', (path) => {
       let res;
       switch(path) {

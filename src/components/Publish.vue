@@ -20,6 +20,10 @@ export default {
   },
   mounted() {
   	this.$store.$emit('changePath', '發佈文章');
+  	this.$store.$emit('writing');
+  },
+  destroyed() {
+  	this.$store.$emit('leaveWriting');
   },
    beforeRouteEnter (to, from, next) {
 	   if(store.token) {
