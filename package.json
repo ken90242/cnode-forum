@@ -7,9 +7,8 @@
   "scripts": {
     "dev": "node build/dev-server.js",
     "start": "node server.js",
-    "build": "rm -rf dist && mkdir dist && node build/build.js",
+    "build": "node build/build.js",
     "lint": "eslint --ext .js,.vue src",
-    "postinstall": "npm run build"
   },
   "dependencies": {
     "autoprefixer": "^7.1.2",
@@ -33,7 +32,6 @@
     "eslint-plugin-html": "^3.0.0",
     "eslint-plugin-import": "^2.2.0",
     "eventsource-polyfill": "^0.9.6",
-    "express": "^4.14.1",
     "extract-text-webpack-plugin": "^2.0.0",
     "file-loader": "^0.11.1",
     "friendly-errors-webpack-plugin": "^1.1.3",
