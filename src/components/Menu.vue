@@ -57,7 +57,6 @@ export default {
   },
   mounted() {
     this.$store.$on('logged', () => {
-      console.log('aaaa')
       this.logged = true
     })
   }
