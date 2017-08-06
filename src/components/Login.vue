@@ -59,6 +59,9 @@ export default {
 	   	.catch(console.error)
   	}
   },
+  mounted() {
+  	this.$store.$emit('changePath', '登錄');
+  },
   beforeRouteLeave(to, from, next) {
 		this.$store.clearTarget();
 		next();

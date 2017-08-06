@@ -18,6 +18,9 @@ export default {
     	content: null,
     }
   },
+  mounted() {
+  	this.$store.$emit('changePath', '發佈文章');
+  },
    beforeRouteEnter (to, from, next) {
 	   if(store.token) {
 	   	next();

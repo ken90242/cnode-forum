@@ -81,6 +81,7 @@ export default {
       .catch(err => {
         console.error(err);
       })
+      this.$store.$emit('changePath', '信息');
   },
 };
 </script>

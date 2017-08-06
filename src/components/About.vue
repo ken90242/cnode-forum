@@ -32,7 +32,10 @@
 
 <script>
 export default {
-  name: 'about'
+  name: 'about',
+  mounted() {
+    this.$store.$emit('changePath', '關於項目');
+  }
 };
 </script>
 
