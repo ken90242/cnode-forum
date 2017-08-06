@@ -15,7 +15,7 @@ export default {
   components: { loading },
   data() {
     return {
-    	accessToken : '2c43262f-ac31-4e49-addf-e46b60b9c1e5',
+    	accessToken : '',
     	logged: false
     }
   },
