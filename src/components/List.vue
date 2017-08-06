@@ -39,10 +39,10 @@ export default {
   components: { loading },
   methods: {
     handleScroll(e) {
-      // console.log(window.outerHeight)
-      // console.log(window.scrollY)
-      // console.log(document.body.scrollHeight)
-      if(document.body.scrollHeight - window.scrollY === window.outerHeight
+      console.log(window.innerHeight)
+      console.log(window.scrollY)
+      console.log(document.body.scrollHeight)
+      if(document.body.scrollHeight - window.scrollY === window.innerHeight
           && 
         window.scrollY !== 0) {
         this.spinned = true;
