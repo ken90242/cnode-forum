@@ -4,9 +4,9 @@
       class="notification"
       v-if="visible">
       <div>
-        <icon name="check-circle" scale="2"></icon>
-        <icon name="times-circle" scale="2"></icon>
-        <icon name="exclamation-circle" scale="2"></icon>
+        <icon v-if="type==='success'" name="check-circle" scale="2"></icon>
+        <icon v-if="type==='error'" name="times-circle" scale="2"></icon>
+        <icon v-if="type==='info'" name="exclamation-circle" scale="2"></icon>
         <div>{{ title }}</div>
         <div>{{ message }}</div>
       </div>
@@ -27,7 +27,7 @@
         visible: false,
         title: '',
         message: '',
-        duration: 2000,
+        duration: 1200,
         type: '',
         closed: false,
       };

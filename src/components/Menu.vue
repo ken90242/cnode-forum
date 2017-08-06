@@ -1,11 +1,11 @@
 <template>
   <section class="nav-list" :class="{'show': showMenu}">
   <section class="list-ul">
-    <!-- <a class="item" @click="gotos">
+    <a class="item" @click="gotos" v-if="logged">
       <icon name="user-o" class="icon" scale="1"/>
       用戶
-    </a> -->
-    <router-link class="item" :to="{'name':'login',params:{tab:'all'}}">
+    </a>
+    <router-link class="item" :to="{'name':'login',params:{tab:'all'}}" v-if="!logged">
       <icon name="arrow-circle-o-right" class="icon" scale="1.7"/>
       登錄
     </router-link>
@@ -42,15 +42,24 @@
 </template>
 
 <script>
-import store from '@/store';
 export default {
   name: 'Menu',
   props: ['showMenu'],
   methods: {
     gotos() {
-      console.log(store)
-      this.$router.push(`/user/${store.loginname}`);
+      this.$router.push(`/user/${this.$store.loginname}`);
     }
+  },
+  data() {
+    return {
+      logged: false,
+    }
+  },
+  mounted() {
+    this.$store.$on('logged', () => {
+      console.log('aaaa')
+      this.logged = true
+    })
   }
 };
 </script>

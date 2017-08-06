@@ -26,7 +26,7 @@ export default {
 	   	next((vm) => {
 	   		vm.$notifi({
 				  title: '請先登入',
-				 	// message: `於${ new Date().toLocaleString() }登錄.`
+				  type: 'info',
 				 });
 	   		vm.$router.push('/login')
 	   	});

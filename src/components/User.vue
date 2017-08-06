@@ -95,6 +95,7 @@ export default {
       .catch(err => {
         console.error(err);
       })
+      this.$store.$emit('changePath', '用戶');
   },
   watch: {
     $route() {

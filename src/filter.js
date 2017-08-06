@@ -10,7 +10,7 @@ export default {
 			case 'share':
 				return '分享';
 			case 'ask':
-				return '回答';
+				return '問答';
 			case 'job':
 				return '招聘';
 		}
@@ -58,12 +58,14 @@ export default {
 			label = '秒前'
 		}
 		else if (uxGap/1000 >= 1) {
+			num = 0
 			label = '數秒前'
 		}
 		else {
 			num = 0
 			label = '剎那前'	
 		}
+
 		if(num === -1) throw '#dateStringToRead 轉換失敗'
 		
 		const result = num != 0 ? `${ parseInt(num,10) }${ label }` : `${ label }`;

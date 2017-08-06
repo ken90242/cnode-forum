@@ -4,7 +4,6 @@ export default new Vue({
 	data() {
 		return {
 			loginname: '',
-			currentPath: '',
 			token: null,
 			target: null,
 			uid: '',

@@ -19,7 +19,6 @@
               <div><span>{{article.reply_count}}</span> / {{article.visit_count}}</div>
               <div>{{ article.create_at | dateStringToRead }}</div>
             </div>
-            <!-- <div class="i">{{article.id}}</div> -->
           </div>
         </div>
       </section>
@@ -33,7 +32,6 @@
 </template>
 
 <script>
-import store from '@/store';
 import loading from './Loading/Loading.vue';
 
 export default {
@@ -44,16 +42,17 @@ export default {
       // console.log(window.outerHeight)
       // console.log(window.scrollY)
       // console.log(document.body.scrollHeight)
-      if(document.body.scrollHeight - window.scrollY === window.outerHeight ) {
+      if(document.body.scrollHeight - window.scrollY === window.outerHeight
+          && 
+        window.scrollY !== 0) {
+        this.spinned = true;
         let tab;
-        if(!this.$route.query) {
+        if(!this.$route.query.tab) {
           tab = 'all';
         } else {
           tab = this.$route.query.tab;
         }
-        store.currentPath = tab;
         const url = `https://cnodejs.org/api/v1/topics?tab=${tab}&limit=40&page=${ this.currentPage }`
-        this.spinned = true;
         this.currentPage += 1
         fetch(url)
         .then(v => {
@@ -81,12 +80,12 @@ export default {
     },
     fetch() {
       let tab;
-        if(!this.$route.query) {
+        if(!this.$route.query.tab) {
           tab = 'all';
         } else {
           tab = this.$route.query.tab;
         }
-        store.currentPath = tab;
+        this.$store.$emit('changePath', tab);
         const url = `https://cnodejs.org/api/v1/topics?tab=${tab}&limit=40&page=${this.currentPage}`
         this.currentPage += 1
         this.loaded = true;
@@ -150,7 +149,8 @@ section {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    margin: 5px;
+    margin-top: 5px;
+    margin-right: 5px;
     .d {
       color: white;
       font-size: 14px;
@@ -248,7 +248,7 @@ section {
   height: 100px;
 }
 .down-enter-active {
-  animation: pop-up .5s;
+  animation: pop-up .3s;
 }
 .down-leave-active {
   animation: pop-down .5s;

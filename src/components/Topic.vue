@@ -52,14 +52,13 @@
 </template>
 
 <script>
-import store from '@/store'
 import loading from './Loading/Loading.vue'
 export default {
   name: 'topic',
   components: { loading },
   methods: {
   	upvote(replyObj) {
-  		if(!store.token) {
+  		if(!this.$store.token) {
   			this.$notifi({
   				title: '請先登入'
   			})
@@ -78,7 +77,7 @@ export default {
 	   		headers: {
 	   			'Content-Type': 'application/x-www-form-urlencoded'
 	   		},
-	   		body: `accesstoken=${ store.token }`,
+	   		body: `accesstoken=${ this.$store.token }`,
 	   	})
 	   	.then((res) => {
 	   		res.json()
@@ -87,6 +86,7 @@ export default {
 	   			if (!success) {
 	   				this.$notifi({
 		   				title: '錯誤',
+		   				type: 'error',
 		   				message: `點讚發生錯誤.`
 		   			});
 	   			}
@@ -97,15 +97,16 @@ export default {
 
   	},
   	attachId(name, id) {
-			if(store.token) {
+			if(this.$store.token) {
 				this.reply_content = `@${ name } `;
 				this.reply_id = id;
 			  this.$refs.reply_content.focus()
 			} else {
 				this.$notifi({
+					type: 'info',
 			  	title: '請先登入',
-			 		// message: `於${ new Date().toLocaleString() }登錄.`
 			  });
+			  this.$store.setTarget({ path: `/topic/${ this.topic.id }` });
 				this.$router.push('/login')
 			}
   	},
@@ -115,9 +116,9 @@ export default {
   	reply_submit() {
   		let body;
   		if(this.reply_id !== null) {
-  			body = `accesstoken=${ store.token }&content=${ this.reply_content }&reply_id= ${ this.reply_id }`;
+  			body = `accesstoken=${ this.$store.token }&content=${ this.reply_content }&reply_id= ${ this.reply_id }`;
   		} else {
-  			body = `accesstoken=${ store.token }&content=${ this.reply_content }`;
+  			body = `accesstoken=${ this.$store.token }&content=${ this.reply_content }`;
   		}
   		this.loaded = true;
   		fetch(`https://cnodejs.org/api/v1/topic/${this.topic.id}/replies`, {
@@ -135,11 +136,14 @@ export default {
 		   			this.reply_content = '';
 		   			this.$notifi({
 		   				title: '成功發表',
+		   				type: 'success',
 		   			});
+		   			window.scrollTo(0,document.body.scrollHeight);
 		   		}
 		   		else {
 		   			this.$notifi({
 		   				title: '錯誤',
+		   				type: 'error',
 		   				message: `發生錯誤：${ data.error_msg }.`
 		   			});
 		   		}
@@ -149,7 +153,7 @@ export default {
 	   	.catch(console.error)
   	},
   	fetch_topic() {
-  		const url = `https://cnodejs.org/api/v1/topic/${this.$route.params.id}?accesstoken=${store.token}`
+  		const url = `https://cnodejs.org/api/v1/topic/${this.$route.params.id}?accesstoken=${this.$store.token}`
       this.loaded = true;
       fetch(url)
       .then(v => v.json())
@@ -188,6 +192,7 @@ export default {
   },
   mounted() {
   	this.fetch_topic();
+  	this.$store.$emit('changePath', '文章')
   },
   watch: {
     $route() {
@@ -196,7 +201,7 @@ export default {
   },
   computed: {
   	hasToken() {
-  		return store.token;
+  		return this.$store.token;
   	}
   }
 };
@@ -409,50 +414,53 @@ main {
 
 </style>
 <style lang="scss">
-pre {
-  font-size: 95%;
-  line-height: 140%;
-	// max-width: 100%;
-	white-space: pre;
-	white-space: pre-wrap;
-	background-color: #f7f7f7;
-	code {
-		font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
-    font-size: 95%;
-    line-height: 140%;
-    white-space: pre-wrap;
-    display: block;
-    font-weight: lighter;
-    padding: .5em 1em;
-    overflow: scroll;
-	}
-}
-img {
-	max-width: 100%;
-}
+
 .markdown-text {
 	a {
 		color: #08c;
 		word-break:break-word;
 		text-decoration: none;
 	}
+	pre {
+	  font-size: 95%;
+	  line-height: 140%;
+		white-space: pre-wrap;
+		background-color: #f7f7f7;
+		code {
+			font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+	    font-size: 95%;
+	    line-height: 140%;
+	    white-space: pre-wrap;
+	    display: block;
+	    font-weight: lighter;
+	    padding: .5em 1em;
+	    overflow: scroll;
+		}
+	}
+	img {
+		max-width: 100%;
+	}
 	li {
 		font-weight: inherit;
 	}
-}
-table {
-	display: table;
-	max-width: 100%;
-	border-collapse: separate;
-  border-spacing: 0px;
-  border-color: grey;
-  border-width: .1px;
-  border-style: solid;
-	td, th {
-		word-break: break-word;
-		border-spacing: 0;
-  	border-width: .1px;
+	p {
+		word-break:break-word;
+	}
+	table {
+		display: table;
+		max-width: 100%;
+		border-collapse: separate;
+	  border-spacing: 0px;
+	  border-color: grey;
+	  border-width: .1px;
 	  border-style: solid;
+		td, th {
+			word-break: break-word;
+			border-spacing: 0;
+	  	border-width: .1px;
+		  border-style: solid;
+		}
 	}
 }
+
 </style>

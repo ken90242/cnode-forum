@@ -1,29 +1,18 @@
 <template>
-  <el-row type="flex" class="fixed" :class="{ 'show': showMenu }">
-    <!-- <el-col :span="1">
-      <i class="el-icon-menu" @click.native="aaa"/>
-    </el-col> -->
-    <el-col :span="1">
-      <icon name="bars" scale="1.5" @click.native="bbb"/>
-    </el-col>
-    <el-col :span="22">
-      <span>{{path}}</span>
-    </el-col>
-    <el-col :span="1">
-      <icon name="send" scale="1.5" @click.native="ccc"/>
-    </el-col>
-  </el-row>
+  <div class="fixed" :class="{ 'show': showMenu }">
+    <icon name="bars" scale="1.5" @click.native="bbb"/>
+    <span>{{ path }}</span>
+    <icon name="send" scale="1.5" @click.native="ccc"/>
+  </div>
 </template>
 
 <script>
-import store from '@/store';
-
 export default {
   name: 'TopHeader',
   props: ['showMenu'],
   data() {
     return {
-      path: store.currentPath,
+      path: '',
     }
   },
   methods: {
@@ -34,18 +23,47 @@ export default {
       this.$router.push('/publish');
     },
   },
+  mounted() {
+    this.$store.$on('changePath', (path) => {
+      let res;
+      switch(path) {
+        case 'good':
+          res = '精華版';
+          break;
+        case 'top':
+          res = '置頂版';
+          break;
+        case 'share':
+          res = '分享版';
+          break;
+        case 'ask':
+          res = '問答版';
+          break;
+        case 'job':
+          res = '招聘版';
+          break;
+        case 'all':
+          res = '全部';
+          break;
+        default:
+          res = path;
+      }
+      this.path = res;
+    })
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="scss" scoped>
 .fixed {
-  padding-right: 25px;
-  padding-left: 25px;
-  display: flex;
-  align-items: center;
   position: fixed;
-  width: 100%;
+  padding-right: 5%;
+  padding-left: 5%;
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+  width: 90%;
   background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 10px 1px 5px gray;
   height: 44px;
@@ -53,6 +71,12 @@ export default {
   transition:all .3s ease;
   &.show {
     transform: translateX(200px);
+  }
+  span {
+    font-family:Microsoft JhengHei;
+    color: #FF9797;
+    font-weight: bolder;
+    font-size: 22px;
   }
 }
 </style>

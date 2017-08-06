@@ -9,7 +9,6 @@
 </template>
 
 <script>
-import store from '@/store'
 import loading from './Loading/Loading.vue'
 export default {
   name: 'login',
@@ -34,23 +33,24 @@ export default {
 	   		res.json()
 	   		.then((data) => {
 		   		if(data.success) {
-		   			store.loginname = data.loginname;
-		   			store.uid = data.id;
-		   			store.setToken(this.accessToken);
-		   			if(store.target) {
-		   				const path = store.target.path
+		   			this.$store.loginname = data.loginname;
+		   			this.$store.uid = data.id;
+		   			this.$store.setToken(this.accessToken);
+		   			if(this.$store.target) {
+		   				const path = this.$store.target.path
 		   				this.$router.push(path);
-		   				this.$notifi({
-		   					title: '登入成功',
-		   					message: `於${ new Date().toLocaleString() }登錄.`
-		   				});
 		   			} else {
 		   				this.$router.push('/list?tab=all');
 		   			}
+		   			this.$notifi({
+		   				title: '登入成功',
+		   				type: 'success'
+		   			});
+		   			this.$store.$emit('logged');
 		   			
 		   		}
 		   		else {
-		   			store.clearToken()
+		   			this.$store.clearToken()
 		   			console.log(data.error_msg)
 		   		}
 		   		this.logged = false;
@@ -60,7 +60,7 @@ export default {
   	}
   },
   beforeRouteLeave(to, from, next) {
-		store.clearTarget();
+		this.$store.clearTarget();
 		next();
   },
   watch: {

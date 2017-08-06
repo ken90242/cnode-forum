@@ -13,9 +13,10 @@ Vue.use(Router);
 const routes = [
     {
       path: '/',
-      alias: '/list/all',
+      alias: '/list',
       name: 'main',
       component: List,
+      
     },
     {
       path: '/list',

@@ -61,8 +61,8 @@ export default {
 	   	store.setTarget(to)
 	   	next((vm) => {
 	   		vm.$notifi({
+	   			type: 'info',
 				  title: '請先登入',
-				 	// message: `於${ new Date().toLocaleString() }登錄.`
 				 });
 	   		vm.$router.push('/login')
 	   	});
