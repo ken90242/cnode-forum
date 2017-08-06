@@ -2,13 +2,15 @@
 
 Online -  https://cnodejs-forum.herokuapp.com/
 
-> A forum for cnodejs, inspired by [shinyang's project](https://github.com/shinygang/Vue-cnodejs) & [zyl1314's](https://github.com/zyl1314/vue-forum)
+> A mobile version for [cnodejs forum](https://cnodejs.org/), inspired by [shinyang's project](https://github.com/shinygang/Vue-cnodejs) & [zyl1314's](https://github.com/zyl1314/vue-forum)
 
 ## Purpose
 
 To learn vuejs
 
 ## demo
+
+![image](https://github.com/ken90242/cnode-forum/blob/master/demo.gif)
 
 ## Using tech/concepts 
 * infinite scroll
