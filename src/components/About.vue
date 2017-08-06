@@ -12,13 +12,13 @@
   	<div>
   		<div>
   			<span>源碼地址</span>
-  			<p>關於項目</p>
+  			<a href="https://github.com/ken90242/cnode-forum">https://github.com/ken90242/cnode-forum</a>
   		</div>
   	</div>
   	<div>
   		<div>
   			<span>意見反饋</span>
-  			<p><a>發表意見或提需求</a></p>
+  			<p><a href="https://github.com/ken90242/cnode-forum/issues">https://github.com/ken90242/cnode-forum/issues</a></p>
   		</div>
   	</div>
   	<div>
@@ -68,6 +68,10 @@ export default {
 			}
 		}
 	}
+  a {
+    color:#42b983;
+    text-decoration: none;
+  }
 }
 .top {
 	height: 44px;
