@@ -9,7 +9,6 @@ Online -  https://cnodejs-forum.herokuapp.com/
 * infinite scroll
 * vue - event bus, routing, prototype function
 * Object.defineProperty
-* JWT
 
 ## Build Setup
 
