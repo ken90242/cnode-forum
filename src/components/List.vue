@@ -42,7 +42,7 @@ export default {
       // console.log(window.innerHeight)
       // console.log(window.scrollY)
       // console.log(document.body.scrollHeight)
-      if(document.body.scrollHeight - window.scrollY === window.innerHeight
+      if(document.documentElement.scrollHeight - window.scrollY === window.innerHeight
           && 
         window.scrollY !== 0) {
         this.spinned = true;
@@ -242,10 +242,10 @@ section {
 }
 .blank {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   background-color: #f0f0f0;
-  height: 100px;
+  height: 50px;
 }
 .down-enter-active {
   animation: pop-up .3s;
